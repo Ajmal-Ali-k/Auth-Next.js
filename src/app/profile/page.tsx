@@ -1,11 +1,30 @@
 "use client";
-import React from "react";
+import React, { useEffect } from "react";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
+import Link from "next/link";
 
 const ProfilePage = () => {
+  const [userdata, setUserData] =React.useState<any>(null)
+ 
   const router = useRouter();
+  const getUserdata = async ()=>{
+    try {
+      const response = await axios.get('/api/users/me')
+      if(response.statusText === "OK"){
+        setUserData(response.data.data)
+      }
+
+    } catch (error:any) {
+      console.log(error)
+      toast.error(error.message)
+    }
+  }
+  useEffect(()=>{
+    getUserdata()
+  },[])
+  console.log(userdata,"this is the user profile data")
   const logOut = async () => {
     try {
       const response = await axios.get("/api/users/logout");
@@ -27,7 +46,7 @@ const ProfilePage = () => {
           alt="img"
         />
         <div>
-          <h1 className="text-5xl font-bold">hello user</h1>
+          <h1 className="text-5xl font-bold uppercase">hello {userdata?.username}</h1>
           <p className="py-6">
             Provident cupiditate voluptatem et in. Quaerat fugiat ut assumenda
             excepturi exercitationem quasi. In deleniti eaque aut repudiandae et
@@ -35,6 +54,9 @@ const ProfilePage = () => {
           </p>
           <button className="btn btn-primary" onClick={logOut}>
             Logout
+          </button>
+          <button className="btn btn-secondary mx-2">
+           <Link href={`/profile/${userdata?._id}`}> go to user detailpage</Link>
           </button>
         </div>
       </div>
